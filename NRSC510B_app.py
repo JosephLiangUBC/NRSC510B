@@ -8,7 +8,7 @@ import sqlite3
 
 
 # Read data from SQLite database
-conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_tap_data.db')
+conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
 tap_output = pd.read_sql_query("SELECT * FROM tap_response_data", conn)
 conn.close()
 tap_output['Strain'] = tap_output['Gene']+" ("+tap_output['Allele'] + ")"
