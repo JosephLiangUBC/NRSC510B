@@ -5,11 +5,22 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib as mpl
 import sqlite3
+import io
 
+@st.cache_data
+def read(table):
+    result = pd.read_sql_query(f"SELECT * FROM {table}", conn)
+    return result
 
 # Read data from SQLite database
 conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
-tap_output = pd.read_sql_query("SELECT * FROM tap_response_data", conn)
+tap_output = read('tap_response_data')
+tap_baseline = read('tap_baseline_data')
+tap_tstat_allele = read('tstat_data')
+allele_metric_data=read('allele_phenotype_data')
+
+# tap_output = pd.read_sql_query("SELECT * FROM tap_response_data", conn)
+# tap_baseline = pd.read_sql_query("SELECT * FROM tap_baseline_data", conn)
 conn.close()
 tap_output['Strain'] = tap_output['Gene']+" ("+tap_output['Allele'] + ")"
 
@@ -18,35 +29,62 @@ st.title('NRSC510B: Data Dashboard for MWT Data')
 
 st.header('Data at a glance')
 
-if st.checkbox('Show raw data'):
-    st.subheader('Raw data')
+if st.checkbox('Show raw tap data'):
+    st.subheader('Raw tap data')
     st.write(tap_output)
+#
+# if st.checkbox('Show raw baseline data'):
+#     st.subheader('Raw baseline data')
+#     st.write(tap_baseline)
+#
+# if st.checkbox('Show tstat data'):
+#     st.subheader('tstat data')
+#     st.write(tap_tstat_allele)
 
 col1, col2 = st.columns([2, 3])
+
 col1.subheader("For A Single Phenotype")
+
 phenotype_option = col1.selectbox(
     'Select a phenotype',
-    ('placeholder', 'list', 'of','phenotypes'))
+    tap_tstat_allele.columns.values[1:])
+
 # seaborn graph of phenotypic view (sample mean distance if possible) + st.pyplot()
-flights = sns.load_dataset("flights")
-flights_wide = flights.pivot(index="year", columns="month", values="passengers")
 sns.set_context('notebook')
-fig, ax = plt.subplots()
-ax=sns.barplot(flights_wide, orient='h')
+fig, ax = plt.subplots(figsize=(4,20))
+ax = sns.barplot(data = allele_metric_data[allele_metric_data.Metric==phenotype_option],
+            x="T_score",
+            y="dataset",orient='h',
+            palette=["dimgray"]).set_title(f"{phenotype_option}")
+plt.xlabel('T-Score')
+plt.ylabel('')
 col1.pyplot(fig)
 col1.caption(f'Sample mean distance from wildtype for all strains for selected phenotype: {phenotype_option}')
+
 # Insert download graph button
 
 col2.subheader("Comprehensive Heatmap")
-# seaborn graph of heatmap + st.pyplot()
-glue = sns.load_dataset("glue").pivot(index="Model", columns="Task", values="Score")
-sns.set_context('notebook')
-fig, ax = plt.subplots()
-ax = sns.heatmap(glue)
+sns.set_context('notebook', font_scale=1)
+fig, ax = plt.subplots(figsize=(15, 20))
+# ax = sns.heatmap(glue)
+
+ax = sns.heatmap(data = tap_tstat_allele.set_index('dataset').drop(index="N2"),
+                 annot=False,
+                 linewidth=0.2,
+                 square=True,
+                 cmap="vlag",
+#                  cmap=sns.diverging_palette(55, 250, s=100, l=40,as_cmap=True),
+                 center=0,
+                 vmax=3,
+                 vmin=-3,
+                 # xticklabels='auto',
+                 # yticklabels='auto',
+                 cbar_kws={"shrink": .2, "pad": 0.01})
+ax.set(xlabel="", ylabel="")
 col2.pyplot(fig)
 col2.caption('Comprehensive heatmap of entire dataset')
 # Insert download graph button
-
+# Insert download csv
 
 st.header('Gene-specific Data')
 gene_option = st.selectbox(
@@ -62,7 +100,7 @@ col3.caption(f'Phenotypic profile of {gene_option}')
 col4.subheader('Rank in phenotype')
 gene_phenotype_option = col4.selectbox(
     'Select a phenotype',
-    ('placeholder', 'list', 'of','gene','phenotypes'))
+    ('list', 'of','gene','phenotypes'))
 # seaborn graph of phenotypic view (sample mean distance) + st.pyplot
 col4.caption(f'Sample mean distance from wildtype for all strains for selected phenotype: {gene_phenotype_option}')
 # Insert download graph button
@@ -74,16 +112,28 @@ tab1, tab2, tab3 = st.tabs(["Probability of Tap-Response",
 
 with tab1:
    st.subheader("Probability")
+   fig, ax = plt.subplots(figsize=(12, 10))
+   # seaborn plot
+   tab1.pyplot(fig)
+   tab1.caption(f'Habituation of Response Probability: {gene_option}')
 # Seaborn graph of probability habituation curve
 # Insert download graph button
 
 with tab2:
    st.subheader("Duration")
+   fig, ax = plt.subplots(figsize=(12, 10))
+   # seaborn plot
+   tab2.pyplot(fig)
+   tab2.caption(f'Habituation of Response Duration: {gene_option}')
 # Seaborn Graph of Duration Habituation curve
 # Insert download graph button
 
 with tab3:
    st.subheader("Speed")
+   fig, ax = plt.subplots(figsize=(12, 10))
+   # seaborn plot
+   tab3.pyplot(fig)
+   tab3.caption(f'Habituation of Response Speed: {gene_option}')
 # seaborn graph of Speed Habituation Curve
 # Insert download graph button
 
@@ -91,8 +141,18 @@ with tab3:
 
 st.header('Allele-specific Data')
 allele_option = st.selectbox(
-    'Select a gene',
-    (tap_output['Strain'].unique()))
+    'Select a allele',
+    (tap_output['dataset'].unique()))
+
+
+
+tap_output_allele=tap_output[tap_output['dataset']==allele_option]
+# st.write(tap_output_allele)
+# st.write(tap_output_allele['Date'].unique())
+allele_tap_data=tap_output[tap_output['Date'].isin(tap_output_allele['Date'].unique())]
+allele_tap_data_plot=allele_tap_data[allele_tap_data['dataset'].isin(['N2', allele_option])]
+allele_tap_data_plot['taps']=allele_tap_data_plot['taps'].astype(int)
+# st.write(allele_tap_data_plot)
 
 col5, col6 = st.columns([1,1])
 col5.subheader('phenotypic profile')
@@ -115,16 +175,86 @@ tab4, tab5, tab6 = st.tabs(["Probability of Tap-Response",
 
 with tab4:
    st.subheader("Probability")
+   fig, ax = plt.subplots(figsize=(12, 10), linewidth=2.5)
+   # seaborn plot
+   plt.gca().xaxis.grid(False)  # <- gets rid of x-axis markers to make data look clean
+   ax = sns.pointplot(x="taps",  # <- Here we use seaborn as our graphing package.
+                      y="prob",
+                      data=allele_tap_data_plot,
+                      hue='dataset',  # <- Here we use the extra column from step 6 to separate by group
+                      errorbar='se')  # <- Confidence interval. 95 = standard error
+   plt.xlabel("Taps")  # <- X-axis title
+   plt.ylabel("Probability")  # <- Y-Axis title
+   plt.title("Probability of Tap Habituation", fontsize='16')  # <- Figure Title
+   plt.ylim(0, 1)
+   ax.legend(loc='upper right', fontsize='12')  # <- location of your legend
+
+   tab4.pyplot(fig)
+   tab4.caption(f'Habituation of Response Probability: {allele_option}')
+
+
+   img = io.BytesIO()
+   plt.savefig(img, format='png', dpi=300, bbox_inches='tight')
+   st.download_button(label="Download Plot",
+                      data = img,
+                      file_name=f"Probability of Tap Habituation, {allele_option}",
+                      mime="image/png",
+                      key='dnldbtn4')
 # Seaborn graph of probability habituation curve
 # Insert download graph button
 
 with tab5:
    st.subheader("Duration")
+   fig, ax = plt.subplots(figsize=(12, 10))
+   # seaborn plot
+   ax = sns.pointplot(x="taps",
+                      y="dura",
+                      data=allele_tap_data_plot,
+                      hue='dataset',
+                      # palette=pal,
+                      errorbar='se')
+   plt.xlabel("Taps", fontsize='12')
+   plt.ylabel("Duration", fontsize='12')
+   plt.title("Habituation of Response Duration", fontsize='16')
+   plt.ylim(0, None)
+   ax.legend(loc='upper right', fontsize='12')
+   tab5.pyplot(fig)
+   tab5.caption(f'Habituation of Response Duration: {allele_option}')
+
+   img = io.BytesIO()
+   plt.savefig(img, format='png', dpi=300, bbox_inches='tight')
+   st.download_button(label="Download Plot",
+                      data = img,
+                      file_name=f"Probability of Tap Habituation, {allele_option}",
+                      mime="image/png",
+                      key='dnldbtn5')
 # Seaborn Graph of Duration Habituation curve
 # Insert download graph button
 
 with tab6:
    st.subheader("Speed")
+   fig, ax = plt.subplots(figsize=(12, 10))
+   # seaborn plot
+   ax = sns.pointplot(x="taps",
+                      y="speed",
+                      data=allele_tap_data_plot,
+                      hue='dataset',
+                      errorbar='se')
+   plt.xlabel("Taps", fontsize='12')
+   plt.ylabel("Speed", fontsize='12')
+   plt.title("Habituation of Response Speed", fontsize='16')
+   plt.ylim(0, None)
+   ax.legend(loc='upper right', fontsize='12')
+   tab6.pyplot(fig)
+   tab6.caption(f'Habituation of Response Speed: {allele_option}')
+
+   img = io.BytesIO()
+   plt.savefig(img, format='png', dpi=300, bbox_inches='tight')
+   st.download_button(label="Download Plot",
+                      data = img,
+                      file_name=f"Probability of Tap Habituation, {allele_option}",
+                      mime="image/png",
+                      key='dnldbtn6')
 # seaborn graph of Speed Habituation Curve
 # Insert download graph button
 
