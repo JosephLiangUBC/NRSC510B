@@ -54,7 +54,7 @@ sns.set_context('notebook')
 fig, ax = plt.subplots(figsize=(4,20))
 ax = sns.barplot(data = allele_metric_data[allele_metric_data.Metric==phenotype_option],
             x="T_score",
-            y="dataset",orient='h',
+            y="Gene",orient='h',
             palette=["dimgray"]).set_title(f"{phenotype_option}")
 plt.xlabel('T-Score')
 plt.ylabel('')
@@ -68,7 +68,7 @@ sns.set_context('notebook', font_scale=1)
 fig, ax = plt.subplots(figsize=(15, 20))
 # ax = sns.heatmap(glue)
 
-ax = sns.heatmap(data = tap_tstat_allele.set_index('dataset').drop(index="N2"),
+ax = sns.heatmap(data = tap_tstat_allele.set_index('Gene').drop(index="N2"),
                  annot=False,
                  linewidth=0.2,
                  square=True,
