@@ -23,25 +23,25 @@ The project is written in Python for its flexibility and compatibility with a nu
 Backend (on Jupyter Notebook):
 
 * Adapt old code to generate pd.Dataframe from MWT data (in the past this would then be saved in experiment-specific .csv files)
-*   complete
+*     complete
 * Perform statistical analyses (T-Test to Control group run in each experiment, Sample Mean Distance from Control for phenotype distribution, umap clustering for dimension reduction) - output in separate pd.DataFrame(s)
-*   anticipated completion Nov. 10
+*     anticipated completion Nov. 10
 * Create SQLite database file/server (sqlite3)
-*   local .db file approach complete
+*     local .db file approach complete
 * Convert all pd.Dataframes to SQLite tables and save to one .db data file (pandas.DataFrame.to_sql)
-*   local .db file approach complete
+*     local .db file approach complete
 * Update .db database (if possible, upload to a publicly hosted server)
-*   anticipated completion Nov. 10
+*     anticipated completion Nov. 10
 
 
 Frontend (Data Dashboard on Streamlit):
 
 * Connect to and retrieve various SQL tables from SQLite file (.db) from local file (and if possible from a server). (sqlite3 & pandas.DataFrame.from_sql)
-*   local .db file approach complete
+*     local .db file approach complete
 * Data visualization (seaborn)
-*   nearly complete (anticipated completion Nov. 15)
+*     nearly complete (anticipated completion Nov. 15)
 * Data dashboard (streamlit)
-*   anticipated completion Nov. 17-21
+*     anticipated completion Nov. 17-21
 
 
 <!-- Getting Started -->
@@ -69,6 +69,6 @@ Frontend (Data Dashboard on Streamlit):
 
 
 <!-- CONTACT -->
-##Contact
+## Contact
 
 
