@@ -45,7 +45,7 @@ Frontend (Data Dashboard on Streamlit):
 
 
 <!-- Getting Started -->
-## Getting STarted
+## Getting Started
 
 ### Prerequesites
 
