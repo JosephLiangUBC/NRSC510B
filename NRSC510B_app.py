@@ -15,6 +15,9 @@ def read(table):
     result = pd.read_sql_query(f"SELECT * FROM {table}", conn)
     return result
 
+filepicker = st.file_uploader("Choose a .db file", accept_multiple_files=False)
+filename = filepicker.name
+# st.write(f"file picked is {filename}")
 
 # Read data from SQLite database
 conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
@@ -25,7 +28,7 @@ gene_profile_data = read('gene_profile_data')
 allele_profile_data = read('allele_profile_data')
 gene_MSD = read('gene_MSD')
 allele_MSD = read('allele_MSD')
-
+# st.write(gene_MSD[gene_MSD['Screen']=='G-Protein_Screen'])
 # tap_output = pd.read_sql_query("SELECT * FROM tap_response_data", conn)
 # tap_baseline = pd.read_sql_query("SELECT * FROM tap_baseline_data", conn)
 conn.close()
@@ -41,19 +44,44 @@ metric_palette = ["k", "k", "k",
 # Streamlit Dashboard starts here
 st.title('NRSC510B: Data Dashboard for MWT Data')
 
-st.header('Data at a glance')
 
-# if st.checkbox('Show MSD data'):
-#     st.subheader('Raw MSD data')
-#     st.write(gene_MSD)
-
-# ci95=list(zip(gene_MSD["Final Response Speed-ci95_hi"],gene_MSD["Final Response Speed-ci95_lo"]))
-
+datasets = st.multiselect(
+    label="Select Datasets",
+    options=gene_MSD.Screen.unique(),
+    default=gene_MSD.Screen.unique()[0],
+    placeholder="make a selection",
+    help="select and de-select datasets you want to analyze",
+    key="datasetselection"
+)
 
 phenotype_list = []
 for a in gene_MSD.columns[1:]:
     b = a.split("-", 1)[0]
     phenotype_list.append(b)
+
+dropna_features=list(np.unique(phenotype_list))
+dropna_features.remove('Spontaneous Recovery of Response Duration')
+dropna_features.remove('Spontaneous Recovery of Response Probability')
+dropna_features.remove('Spontaneous Recovery of Response Speed')
+# st.write(dropna_features)
+
+tap_output = tap_output[tap_output['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+# tap_tstat_allele = tap_tstat_allele[tap_tstat_allele['Screen'].isin(datasets)].dropna(subset=dropna_features).drop(columns=['Screen']).replace(["N2_N2", "N2_XJ1"], "N2")
+tap_tstat_allele = tap_tstat_allele[tap_tstat_allele['Screen'].isin(datasets)].dropna(subset=dropna_features).drop(columns=['Screen']).replace(["N2_N2", "N2_XJ1"], "N2")
+gene_profile_data = gene_profile_data[gene_profile_data['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+allele_profile_data = allele_profile_data[allele_profile_data['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+gene_MSD = gene_MSD[gene_MSD['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+allele_MSD = allele_MSD[allele_MSD['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+#
+# st.write(datasets)
+# st.write(allele_profile_data)
+# st.write(tap_output)
+# st.write(gene_MSD)
+st.header('Data at a glance')
+
+# if st.checkbox('Show MSD data'):
+#     st.subheader('Raw MSD data')
+#     st.write(gene_MSD)
 
 # st.write(gene_MSD[''])
 # if st.checkbox('Show raw tap data'):
@@ -78,21 +106,24 @@ phenotype_option = col1.selectbox(
 
 # seaborn graph of phenotypic view (sample mean distance if possible) + st.pyplot()
 sns.set_context('notebook')
-colors = ["dimgray"] * len(gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])["Gene-"])
+colors = ["dimgray"] * len(gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])["Gene"])
 colors[gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]).reset_index(drop=True)[
-    gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]).reset_index(drop=True)["Gene-"] == "N2"].index[0]] = "red"
-fig, ax = plt.subplots(figsize=(4, 16))
+    gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]).reset_index(drop=True)["Gene"] == "N2"].index[0]] = "red"
+figx = col1.slider('Figure width', 1, 20, 4, key="figx_1")
+figy = col1.slider('Figure Height', 1, 70, 16, key="figy_1")
+fig, ax = plt.subplots(figsize=(figx, figy))
+# fig, ax = plt.subplots()
 # ax = sns.pointplot(data = gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]),
 #             x=f"{phenotype_option}-mean",
 #             y="Gene-",
 #             # errorbar=list(zip(gene_MSD[f"{phenotype_option}-ci95_lo"],gene_MSD[f"{phenotype_option}-ci95_hi"])),
 #             palette=["dimgray"]).set_title(f"{phenotype_option}")
 ax = plt.errorbar(x=gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])[f"{phenotype_option}-mean"],
-                  y=gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])["Gene-"],
+                  y=gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])["Gene"],
                   xerr=gene_MSD[f"{phenotype_option}-ci95_hi"] - gene_MSD[f"{phenotype_option}-mean"],
                   fmt="none", marker="none", ecolor=colors, elinewidth=3)
 ax = plt.scatter(x=gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])[f"{phenotype_option}-mean"],
-                 y=gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])["Gene-"],
+                 y=gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])["Gene"],
                  marker='o', color=colors)
 
 plt.xlabel('Sample Mean Distance')
@@ -113,8 +144,11 @@ col1.download_button(label="Download Plot",
 # Insert download graph button
 
 col2.subheader("Comprehensive Heatmap")
-sns.set_context('notebook', font_scale=1)
-fig, ax = plt.subplots(figsize=(15, 20))
+sns.set_context('notebook', font_scale=0.7)
+figx_hm = col2.slider('Figure Width', 0, 30, 15, key="figx_hm")
+figy_hm = col2.slider('Figure Height', 0, 70, 20, key="figy_hm")
+fig, ax = plt.subplots(figsize=(figx_hm, figy_hm))
+# fig, ax = plt.subplots()
 # ax = sns.heatmap(glue)
 
 ax = sns.heatmap(data=tap_tstat_allele.set_index('Gene').drop(index="N2"),
@@ -128,8 +162,9 @@ ax = sns.heatmap(data=tap_tstat_allele.set_index('Gene').drop(index="N2"),
                  vmin=-3,
                  # xticklabels='auto',
                  # yticklabels='auto',
-                 cbar_kws={"shrink": .2, "pad": 0.01})
+                 cbar_kws={"shrink": .05, "pad": 0.01})
 ax.set(xlabel="", ylabel="")
+ax.set_facecolor('xkcd:black')
 col2.pyplot(fig)
 col2.caption('Comprehensive heatmap of entire dataset')
 
@@ -193,25 +228,25 @@ col4.subheader('Rank in phenotype')
 
 # seaborn graph of phenotypic view (sample mean distance) + st.pyplot
 sns.set_context('notebook')
-gene_colors = ["dimgray"] * len(gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])["Gene-"])
+gene_colors = ["dimgray"] * len(gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])["Gene"])
 gene_colors[gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)[
-    gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)["Gene-"] == "N2"].index[
+    gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)["Gene"] == "N2"].index[
     0]] = "red"
 gene_colors[gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)[
-    gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)["Gene-"] == gene_option].index[
+    gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)["Gene"] == gene_option].index[
     0]] = "magenta"
-fig, ax = plt.subplots(figsize=(4, 9))
+fig, ax = plt.subplots(figsize=(figx, figy))
 # ax = sns.pointplot(data = gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]),
 #             x=f"{phenotype_option}-mean",
 #             y="Gene-",
 #             # errorbar=list(zip(gene_MSD[f"{phenotype_option}-ci95_lo"],gene_MSD[f"{phenotype_option}-ci95_hi"])),
 #             palette=["dimgray"]).set_title(f"{phenotype_option}")
 ax = plt.errorbar(x=gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])[f"{gene_phenotype_option}-mean"],
-                  y=gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])["Gene-"],
+                  y=gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])["Gene"],
                   xerr=gene_MSD[f"{gene_phenotype_option}-ci95_hi"] - gene_MSD[f"{gene_phenotype_option}-mean"],
                   fmt="none", marker="none", ecolor=gene_colors, elinewidth=3)
 ax = plt.scatter(x=gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])[f"{gene_phenotype_option}-mean"],
-                 y=gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])["Gene-"],
+                 y=gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])["Gene"],
                  marker='o', color=gene_colors)
 
 plt.xlabel('Sample Mean Distance')
@@ -372,12 +407,12 @@ allele_phenotype_option = col6.selectbox(
 # seaborn graph of phenotypic view (sample mean distance) + st.pyplot
 
 sns.set_context('notebook')
-allele_colors = ["dimgray"] * len(allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])["dataset-"])
+allele_colors = ["dimgray"] * len(allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])["dataset"])
 allele_colors[allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"]).reset_index(drop=True)[
-    allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"]).reset_index(drop=True)["dataset-"] == "N2"].index[
+    allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"]).reset_index(drop=True)["dataset"] == "N2"].index[
     0]] = "red"
 allele_colors[allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"]).reset_index(drop=True)[
-    allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"]).reset_index(drop=True)["dataset-"] == allele_option].index[
+    allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"]).reset_index(drop=True)["dataset"] == allele_option].index[
     0]] = "magenta"
 
 fig, ax = plt.subplots(figsize=(4, 16))
@@ -387,11 +422,11 @@ fig, ax = plt.subplots(figsize=(4, 16))
 #             # errorbar=list(zip(gene_MSD[f"{phenotype_option}-ci95_lo"],gene_MSD[f"{phenotype_option}-ci95_hi"])),
 #             palette=["dimgray"]).set_title(f"{phenotype_option}")
 ax = plt.errorbar(x=allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])[f"{allele_phenotype_option}-mean"],
-                  y=allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])["dataset-"],
+                  y=allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])["dataset"],
                   xerr=allele_MSD[f"{allele_phenotype_option}-ci95_hi"] - allele_MSD[f"{allele_phenotype_option}-mean"],
                   fmt="none", marker="none", ecolor=allele_colors, elinewidth=3)
 ax = plt.scatter(x=allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])[f"{allele_phenotype_option}-mean"],
-                 y=allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])["dataset-"],
+                 y=allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])["dataset"],
                  marker='o', color=allele_colors)
 
 plt.xlabel('Sample Mean Distance')
