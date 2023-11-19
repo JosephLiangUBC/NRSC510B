@@ -72,6 +72,7 @@ gene_profile_data = gene_profile_data[gene_profile_data['Screen'].isin(datasets)
 allele_profile_data = allele_profile_data[allele_profile_data['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
 gene_MSD = gene_MSD[gene_MSD['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
 allele_MSD = allele_MSD[allele_MSD['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+
 #
 # st.write(datasets)
 # st.write(allele_profile_data)
