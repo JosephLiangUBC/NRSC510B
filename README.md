@@ -1,6 +1,6 @@
 # NRSC510B: Phenotype Data Dashboard for Multi-Worm Tracker Data
 
-![Screenshot 2023-11-20 at 12 28 39 PM](https://github.com/JosephLiangUBC/NRSC510B/assets/41761806/4efb54c7-940e-46ff-a355-0a8fbbe32484)
+![Screenshot](https://github.com/JosephLiangUBC/NRSC510B/assets/41761806/4efb54c7-940e-46ff-a355-0a8fbbe32484)
 
 <!-- About The Project -->
 ## About The Project
@@ -23,14 +23,13 @@ The project is written in Python for its flexibility and compatibility with a nu
 ## Getting Started
 
 ### Prerequesites
+The code was executed using the following Python version and platform:
 
-Download 'mwt_data.db' file from the OSF page.
-Download NRSC510B_app.py from GitHub
+Python version v.3.11.1 (2022-12-06)
+Copyright (C) Python Software Foundation
+Platform: Apple M1 Pro on macOS Ventura v13.5.2 (ARM 64-bit)
 
 #### System Packages
-
-Packages used with Python v.3.11.1:
-
 * ipyfilechooser 0.6.0
 * jupyter 1.0.0
 * matplotlib 3.7.1
@@ -43,21 +42,25 @@ Packages used with Python v.3.11.1:
 * streamlit 1.27.2
 * tqdm 4.65.0
 
-### Installation
-
 ### Data
-
-### Additional Data
-
-### Configuration
+All data used by the streamlit app is stored in 'mwt_data.db'
+Download 'mwt_data.db' file from the OSF page.
 
 <!-- USAGE EXAMPLES -->
 ## Usage
+Download NRSC510B_app.py from GitHub
 
 ### Command line
-
+To run the streamlit app after its download:
+In terminal/command prompt, navigate towards the local directory of NRSC510B_app.py
+Then run streamlit app:
+```
+streamlit run NRSC510B_app.py
+```
 <!-- LICENSE -->
 ## License
+
+Distributed under the GNU General Public License (GPL) 3.0
 
 <!-- Laundry List of Improvements -->
 ## List of things I am currently working on to improve the app:
@@ -66,4 +69,13 @@ Packages used with Python v.3.11.1:
 <!-- CONTACT -->
 ## Contact
 
+For questions or comments specific to the implementation provided in this repository, please contact:
+
+Joseph Liang - [GitHub](https://github.com/JosephLiangUBC) - joseph.liang@psych.ubc.ca
+
+Additional questions about the project, such as further information and requests for data should be directed to and will be fulfilled by the Lead Contact, Catharine H. Rankin (crankin@psych.ubc.ca)
+
+<!-- Project Author -->
+## Project Author
+* Joseph Liang
 
