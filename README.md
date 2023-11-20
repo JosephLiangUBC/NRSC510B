@@ -1,5 +1,7 @@
 # NRSC510B: Phenotype Data Dashboard for Multi-Worm Tracker Data
 
+![Screenshot 2023-11-20 at 12 28 39 PM](https://github.com/JosephLiangUBC/NRSC510B/assets/41761806/4efb54c7-940e-46ff-a355-0a8fbbe32484)
+
 <!-- About The Project -->
 ## About The Project
 
