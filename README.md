@@ -31,17 +31,17 @@ Download NRSC510B_app.py from GitHub
 
 Packages used with Python v.3.11.1:
 
-ipyfilechooser 0.6.0
-jupyter 1.0.0
-matplotlib 3.7.1
-notebook 7.0.2
-numpy 1.24.3
-pandas 2.0.2
-requests 2.28.2
-scipy 1.10.1
-seaborn 0.12.2
-streamlit 1.27.2
-tqdm 4.65.0
+* ipyfilechooser 0.6.0
+* jupyter 1.0.0
+* matplotlib 3.7.1
+* notebook 7.0.2
+* numpy 1.24.3
+* pandas 2.0.2
+* requests 2.28.2
+* scipy 1.10.1
+* seaborn 0.12.2
+* streamlit 1.27.2
+* tqdm 4.65.0
 
 ### Installation
 
