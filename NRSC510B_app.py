@@ -28,6 +28,7 @@ gene_profile_data = read('gene_profile_data')
 allele_profile_data = read('allele_profile_data')
 gene_MSD = read('gene_MSD')
 allele_MSD = read('allele_MSD')
+
 # st.write(gene_MSD[gene_MSD['Screen']=='G-Protein_Screen'])
 # tap_output = pd.read_sql_query("SELECT * FROM tap_response_data", conn)
 # tap_baseline = pd.read_sql_query("SELECT * FROM tap_baseline_data", conn)
@@ -72,6 +73,7 @@ gene_profile_data = gene_profile_data[gene_profile_data['Screen'].isin(datasets)
 allele_profile_data = allele_profile_data[allele_profile_data['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
 gene_MSD = gene_MSD[gene_MSD['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
 allele_MSD = allele_MSD[allele_MSD['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+
 
 #
 # st.write(datasets)
@@ -155,7 +157,7 @@ fig, ax = plt.subplots(figsize=(figx_hm, figy_hm))
 ax = sns.heatmap(data=tap_tstat_allele.set_index('Gene').drop(index="N2"),
                  annot=False,
                  linewidth=0.2,
-                 square=True,
+                 square=False,
                  cmap="vlag",
                  #                  cmap=sns.diverging_palette(55, 250, s=100, l=40,as_cmap=True),
                  center=0,
