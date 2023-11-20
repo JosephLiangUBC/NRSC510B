@@ -12,46 +12,36 @@ PMID 31701892 2. PMID 21642964
 
 <!-- Dataset Description -->
 ## Dataset Descirption
-The dataset used for this project is the data output of 28 phenotypes from the MWT collected by the myself and other students within the Rankin Lab (101 strains and counting, each with sample size of ~50-100 worms per plate for up to 5 replicates each). The raw data (it is uninterpretable and requires translation through a proprietary java program) was processed and stored in .csv format. All 28 phenotypes are numerical in nature, variables range from morphological (length, width, area) to behaviour metrics (speed, response sensitivity and habituation metrics). The dataset is stored in a network-attached storage (NAS) affiliated with the Psychology department at UBC and in an external hard drive. As our lab generated this data ourselves, there are no permissions required for its reuse.
+The dataset used for this project is the data output of 23 phenotypes from the MWT collected by the myself and other students within the Rankin Lab (101 strains and counting, each with sample size of ~50-100 worms per plate for up to 5 replicates each). The raw data (it is uninterpretable and requires translation through a proprietary java program) was processed and stored in .csv file formats that are stored within the original experiment files. All 23 phenotypes are numerical in nature, ranging from morphological (length, width, area) to behaviour metrics (speed, response sensitivity and habituation metrics). All experimental data from the dataset are stored in a network-attached storage (NAS) affiliated with the Psychology department at UBC, distributed across separate folders, organized by date. As our lab generated this data ourselves, there are no permissions required for its reuse. The contents of the OSF page are licensed by GNU General Public License (GPL) 3.0, as currently intention is only to make the underlying code publicly available. Because a majority of the data used for this project is currently unpublished data, the dataset is licensed by Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0) International.
 
 
 <!-- Coding Component -->
 ## Coding Component
-The project is written in Python for its flexibility and compatibility with a number of data-science, statistics and visualization packages. After initial processing, data is be stored in SQLite as an efficient database management language (through the sqlite3 package). Numpy and pandas were used for the manipulation of the high-dimension dataset, Pingouin and scipy and statsmodels packages was used for any statistical analyses and Plotly and streamlit is be used for data visualization and the user interface of the data dashboard.
-
-<!-- Steps and Project Timeline -->
-## Steps required for project completion:
-
-Backend (on Jupyter Notebook):
-
-* Adapt old code to generate pd.Dataframe from MWT data (in the past this would then be saved in experiment-specific .csv files)
-*     complete
-* Perform statistical analyses (T-Test to Control group run in each experiment, Sample Mean Distance from Control for phenotype distribution, umap clustering for dimension reduction) - output in separate pd.DataFrame(s)
-*     anticipated completion Nov. 10
-* Create SQLite database file/server (sqlite3)
-*     local .db file approach complete
-* Convert all pd.Dataframes to SQLite tables and save to one .db data file (pandas.DataFrame.to_sql)
-*     local .db file approach complete
-* Update .db database (if possible, upload to a publicly hosted server)
-*     anticipated completion Nov. 10
-
-
-Frontend (Data Dashboard on Streamlit):
-
-* Connect to and retrieve various SQL tables from SQLite file (.db) from local file (and if possible from a server). (sqlite3 & pandas.DataFrame.from_sql)
-*     local .db file approach complete
-* Data visualization (seaborn)
-*     nearly complete (anticipated completion Nov. 15)
-* Data dashboard (streamlit)
-*     anticipated completion Nov. 17-21
-
+The project is written in Python for its flexibility and compatibility with a number of data-science, statistics and visualization packages. After initial processing, data is stored in .db format as an efficient database management language (through the sqlite3 package). Numpy and pandas were used for the manipulation of the high-dimension dataset, Scipy and statsmodels packages was used for any statistical analyses. Streamlit and seaborn is used for data visualization and the user interface of the data dashboard.
 
 <!-- Getting Started -->
 ## Getting Started
 
 ### Prerequesites
 
+Download 'mwt_data.db' file from the OSF page.
+Download NRSC510B_app.py from GitHub
+
 #### System Packages
+
+Packages used with Python v.3.11.1:
+
+ipyfilechooser 0.6.0
+jupyter 1.0.0
+matplotlib 3.7.1
+notebook 7.0.2
+numpy 1.24.3
+pandas 2.0.2
+requests 2.28.2
+scipy 1.10.1
+seaborn 0.12.2
+streamlit 1.27.2
+tqdm 4.65.0
 
 ### Installation
 
@@ -68,6 +58,9 @@ Frontend (Data Dashboard on Streamlit):
 
 <!-- LICENSE -->
 ## License
+
+<!-- Laundry List of Improvements -->
+## List of things I am currently working on to improve the app:
 
 
 <!-- CONTACT -->
