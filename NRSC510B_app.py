@@ -22,9 +22,8 @@ filename = filepicker.name
 
 # Read data from SQLite database
 
-# conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
+conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
 
-conn=sqlite3.connect(filepicker)
 tap_output = read('tap_response_data')
 tap_tstat_allele = read('tstat_gene_data')
 # allele_metric_data = read('allele_phenotype_data')
