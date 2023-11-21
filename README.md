@@ -64,7 +64,14 @@ Distributed under the GNU General Public License (GPL) 3.0
 
 <!-- Laundry List of Improvements -->
 ## List of things I am currently working on to improve the app:
-
+Although app is in a stable, usable state, here is a list of improvements I am currently working on:
+* Better visuals (exploring other plotting packages)
+* A Multi-page UI
+* Deployment of app (and if possible the database) to cloud (or another hosted server)
+* Download dataset as csv functionality
+* Adding links to external online resources (such as wormbase or alliance of genome resources) for each gene/allele
+* More statistics
+* Clustering
 
 <!-- CONTACT -->
 ## Contact
