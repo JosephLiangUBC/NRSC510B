@@ -15,12 +15,16 @@ def read(table):
     result = pd.read_sql_query(f"SELECT * FROM {table}", conn)
     return result
 
+
 filepicker = st.file_uploader("Choose a .db file", accept_multiple_files=False)
 filename = filepicker.name
 # st.write(f"file picked is {filename}")
 
 # Read data from SQLite database
-conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
+
+# conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
+
+conn=sqlite3.connect(filepicker)
 tap_output = read('tap_response_data')
 tap_tstat_allele = read('tstat_gene_data')
 # allele_metric_data = read('allele_phenotype_data')
@@ -45,7 +49,6 @@ metric_palette = ["k", "k", "k",
 # Streamlit Dashboard starts here
 st.title('NRSC510B: Data Dashboard for MWT Data')
 
-
 datasets = st.multiselect(
     label="Select Datasets",
     options=gene_MSD.Screen.unique(),
@@ -60,7 +63,7 @@ for a in gene_MSD.columns[1:]:
     b = a.split("-", 1)[0]
     phenotype_list.append(b)
 
-dropna_features=list(np.unique(phenotype_list))
+dropna_features = list(np.unique(phenotype_list))
 dropna_features.remove('Spontaneous Recovery of Response Duration')
 dropna_features.remove('Spontaneous Recovery of Response Probability')
 dropna_features.remove('Spontaneous Recovery of Response Speed')
@@ -68,12 +71,13 @@ dropna_features.remove('Spontaneous Recovery of Response Speed')
 
 tap_output = tap_output[tap_output['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
 # tap_tstat_allele = tap_tstat_allele[tap_tstat_allele['Screen'].isin(datasets)].dropna(subset=dropna_features).drop(columns=['Screen']).replace(["N2_N2", "N2_XJ1"], "N2")
-tap_tstat_allele = tap_tstat_allele[tap_tstat_allele['Screen'].isin(datasets)].dropna(subset=dropna_features).drop(columns=['Screen']).replace(["N2_N2", "N2_XJ1"], "N2")
+tap_tstat_allele = tap_tstat_allele[tap_tstat_allele['Screen'].isin(datasets)].dropna(subset=dropna_features).drop(
+    columns=['Screen']).replace(["N2_N2", "N2_XJ1"], "N2")
 gene_profile_data = gene_profile_data[gene_profile_data['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
-allele_profile_data = allele_profile_data[allele_profile_data['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+allele_profile_data = allele_profile_data[allele_profile_data['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"],
+                                                                                                "N2")
 gene_MSD = gene_MSD[gene_MSD['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
 allele_MSD = allele_MSD[allele_MSD['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
-
 
 #
 # st.write(datasets)
@@ -415,7 +419,8 @@ allele_colors[allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"]).res
     allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"]).reset_index(drop=True)["dataset"] == "N2"].index[
     0]] = "red"
 allele_colors[allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"]).reset_index(drop=True)[
-    allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"]).reset_index(drop=True)["dataset"] == allele_option].index[
+    allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"]).reset_index(drop=True)[
+        "dataset"] == allele_option].index[
     0]] = "magenta"
 
 fig, ax = plt.subplots(figsize=(4, 16))
@@ -449,9 +454,7 @@ col6.download_button(label="Download Plot",
                      mime="image/png",
                      key='dnldallelephenotypeprofile')
 
-
 # Insert download graph button
-
 
 
 st.subheader('Habituation Curves')
