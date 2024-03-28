@@ -85,9 +85,9 @@ allele_MSD = allele_MSD[allele_MSD['Screen'].isin(datasets)].replace(["N2_N2", "
 # st.write(gene_MSD)
 st.header('Data at a glance')
 
-# if st.checkbox('Show MSD data'):
-#     st.subheader('Raw MSD data')
-#     st.write(gene_MSD)
+if st.checkbox('Show MSD data'):
+    st.subheader('Raw MSD data')
+    st.write(gene_MSD)
 
 # st.write(gene_MSD[''])
 # if st.checkbox('Show raw tap data'):
